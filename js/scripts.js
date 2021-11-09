@@ -50,8 +50,76 @@ var search_params = {
 
 $(function(){
 
-  
+  //$("#quantity").val()
+  // $("#style").val()
+  //$("#color .option-button.selected").attr('id')
+  //$("#quality .option-button.selected").attr('id')  
     
+    function update_param() {
+            search_params.quality =$("#quality .option-button.selected").attr('id')
+            search_params.color = $("#color .option-button.selected").attr('id')
+            search_params.style = $("#style").val()
+            search_params.quantity = parseInt($("#quantity").val())
+        
+        update_order_details();
+    }
+    function update_order_details() {
+       $(".refresh-loader").show()
+      
+        var qualityId = "#" + search_params.quality;
+        var colorId = "#" + search_params.color;
+        var styleSelector = "#style option[value ="+ search_params.style +"]";
+        $("#result-style").html($(styleSelector).text());
+        $("#result-quality").html($(qualityId).text());
+        $("#result-quantity").html(search_params.quantity);
+        $("#result-color").html($(colorId).text());
+        $("#total-price").text(calculate_total())
+        var photoUrl = "img/" + products[search_params.color][search_params.style].photo;
+        $("#photo-product").attr("src", photoUrl)
+        window.setTimeout(function () {
+            $(".refresh-loader").hide()
+        },100)
+       
+
+    }
+    function calculate_total() {
+        var unitPrice = products[search_params.color][search_params.style].unit_price;
+        if (search_params.quality == "q190") {
+            unitPrice *=1.12
+        }
+        var total = unitPrice * search_params.quantity;
+        if (search_params.quantity >= 1000) {
+            total *= 0.8;
+        } else if (search_params.quantity >= 500) {
+            total *= 0.88;
+        } else if (search_params.quantity >= 100) {
+            total *= 0.95;
+        }
+        
+        return total.toLocaleString("en-US", { style: "currency", currency: "USD" });
+
+    }
+    update_param();
+
+    $("#quantity").change(function () {
+        search_params.quantity = parseInt($("#quantity").val());
+        update_order_details();
+    });
+    $("#style").change(function () {
+        search_params.style = $("#style").val();
+        update_order_details();
+    });
+
+    $(".option-button").click(function () {
+        var clickedParam = $(this).parent().attr("id");
+        var childSelector = "#" + clickedParam + " .option-button";
+        $(childSelector).removeClass("selected");
+        $(this).addClass("selected");
+        var selectedChild = "#" + clickedParam + " .option-button.selected";
+        search_params[clickedParam] = $(selectedChild).attr('id');
+        update_order_details();
+    });
+
 });
 
 
